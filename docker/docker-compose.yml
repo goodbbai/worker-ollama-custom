@@ -1,0 +1,38 @@
+# Docker Compose file for local testing
+# Usage: docker-compose up
+
+version: '3.8'
+
+services:
+  runpod-ollama:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      platforms:
+        - linux/amd64
+      args:
+        MODEL_NAME: ${MODEL_NAME:-my-model}
+        EXTRACTED_MODELS_PATH: ${EXTRACTED_MODELS_PATH:-}
+        PORT: ${PORT:-80}
+        PORT_HEALTH: ${PORT_HEALTH:-8080}
+    image: ${REGISTRY:-your-username}/${IMAGE_NAME:-runpod-ollama}:${TAG:-latest}
+    platform: linux/amd64
+    container_name: ${IMAGE_NAME:-runpod-ollama}-local
+    ports:
+      - "${TEST_PORT:-11434}:${PORT:-80}"
+      - "${PORT_HEALTH:-8080}:${PORT_HEALTH:-8080}"
+    environment:
+      - PORT=${PORT:-80}
+      - PORT_HEALTH=${PORT_HEALTH:-8080}
+      - OLLAMA_BASE_URL=http://localhost:${PORT:-80}
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/root/.ollama/models
+    restart: unless-stopped
+    # Uncomment if you have a GPU and want to use it locally
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]

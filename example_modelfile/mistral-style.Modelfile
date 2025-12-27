@@ -1,0 +1,16 @@
+FROM {{GGUF_PATH}}
+
+PARAMETER temperature 0.95
+PARAMETER top_p 0.95
+PARAMETER top_k 80
+PARAMETER min_p 0.025
+PARAMETER num_predict -1
+PARAMETER num_ctx 16384
+
+TEMPLATE """{{- if .System }}[SYSTEM_PROMPT]{{ .System }}[/SYSTEM_PROMPT]{{ end }}
+{{- range .Messages }}
+{{- if eq .Role "user" }}[INST]{{ .Content }}[/INST]
+{{- else if eq .Role "assistant" }}{{ .Content }}</s>
+{{- end }}
+{{- end }}"""
+
